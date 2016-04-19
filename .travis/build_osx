@@ -1,13 +1,16 @@
 #!/bin/sh
 set -ev
 
+brew install cmake doxygen tinyxml pkg-config
+
 # Directories.
 root_dir=`pwd`
 build_dir="$root_dir/_travis/build"
 install_dir="$root_dir/_travis/install"
 
 # Shortcuts.
-git_clone="git clone --quiet --recursive"
+git_clone="git clone --quiet"
+git_submodule="git submodule --quiet update --init"
 
 # Create layout.
 rm -rf "$build_dir" "$install_dir"
@@ -27,6 +30,7 @@ install_dependency()
     cd "$build_dir"
     $git_clone "git://github.com/$1" "$1"
     cd "$build_dir/$1"
+    $git_submodule
     cmake . -DCMAKE_INSTALL_PREFIX:STRING="$install_dir"
     make install
 }
@@ -36,9 +40,6 @@ install_dependency()
 # Compile and run tests
 cd "$build_dir"
 cmake "$root_dir" -DCMAKE_INSTALL_PREFIX="$install_dir"		\
-		  -DCMAKE_CXX_FLAGS="--coverage"		\
-		  -DCMAKE_EXE_LINKER_FLAGS="--coverage"		\
-		  -DCMAKE_MODULE_LINKER_FLAGS="--coverage"	\
 		  -DCMAKE_INSTALL_PREFIX:STRING="$install_dir"
 make
 make test
