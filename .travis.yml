@@ -7,23 +7,23 @@ dist: trusty
 notifications:
   email:
   - jmirabel@laas.fr
+addons:
+  apt:
+    packages:
+      - libboost-filesystem-dev
+      - libboost-system-dev
+      - libtinyxml-dev
 branches:
   only:
   - master
   - devel
 compiler:
-- gcc
+  - gcc
 before_install:
-  - ROOT_DIR=`pwd`
-  - BUILD_DIR="${ROOT_DIR}/_travis/build"
-  - INSTALL_DIR="${ROOT_DIR}/_travis/install"
+  - export ROOT_DIR=`pwd`
+  - export DEVEL_DIR="$ROOT_DIR/_travis"
+  - export TRAVIS_SUBMODULE="$ROOT_DIR/.travis-submodule"
 install:
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then '.travis/build_linux' ; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx"   ]; then '.travis/build_osx'   ; fi
-script:
-  - if [ ! -d "$BUILD_DIR" ]; then mkdir "$BUILD_DIR"; fi
-  - cd "$BUILD_DIR"
-  - cmake "$ROOT_DIR" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:STRING="$INSTALL_DIR"
-  - make
-  - make test
-  - make install
+  - git submodule --quiet update --init
+  - ${TRAVIS_SUBMODULE}/install
+script: ${TRAVIS_SUBMODULE}/script
